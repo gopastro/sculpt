@@ -1,7 +1,7 @@
 from astropy.io import fits as pyfits
 import types
 import astropy.io
-from sculpt.fits.utils.outvar import OutVar
+from sculpt.idealpy.fits.utils.outvar import OutVar
 
 
 def sxaddhist(header, history, before=None, after=None):
