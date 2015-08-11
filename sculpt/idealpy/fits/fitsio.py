@@ -7,7 +7,7 @@ from astropy.io import fits as pyfits
 #import pyfits
 import glob
 import types
-from idealpy.fits import sxpar
+from sculpt.idealpy.fits import sxpar
 
 def _get_default_keywords(keywords, default):
     if keywords is None:

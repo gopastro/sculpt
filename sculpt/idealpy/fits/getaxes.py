@@ -1,5 +1,5 @@
 import types
-from .fits import sxpar
+from sculpt.idealpy.fits import sxpar
 import numpy
 
 def getax(header, ax):

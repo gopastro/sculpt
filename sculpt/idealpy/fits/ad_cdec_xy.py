@@ -1,4 +1,4 @@
-from .fits import sxpar
+from sculpt.idealpy.fits import sxpar
 import math
 
 def ad_cdec_xy(header, a, d):
