@@ -115,7 +115,7 @@ def baseline(hdu, chan, windows, order = 0, subtract = True, returnrms = True, k
         else:
             vorc = 'VELOCITY'
 
-        sxaddhist(hnew, "WINDOW : %s; Window %s LIMITS" % (repr(window), vorc))
+        sxaddhist(hnew, "WINDOW : %s; Window %s LIMITS" % (repr(windows), vorc))
         #sxaddpar(hnew, "BUNIT", units, "Units")
         sxdelpar(hnew, "CRVAL3")
         sxdelpar(hnew, "CRPIX3")
