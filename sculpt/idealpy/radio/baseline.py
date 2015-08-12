@@ -3,7 +3,7 @@ from sculpt.idealpy.fits import sxpar, sxdelpar, sxaddpar, getaxes, sxaddhist
 from sculpt.utils import SculptArgumentError
 import numpy
 
-def baseline(self, hdu, chan, windows, order = 0, subtract = True, returnrms = True, kms = True):
+def baseline(hdu, chan, windows, order = 0, subtract = True, returnrms = True, kms = True):
     #this function needs to be passed a FITS HDU
     #with data in the (V,X,Y) format
 
