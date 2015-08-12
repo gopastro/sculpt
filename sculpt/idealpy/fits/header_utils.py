@@ -104,8 +104,8 @@ def sxaddpar(header, name, value, comment=None,
         #make sure to reset existing comment
         if not comment:
             comment = ''
-    header.update(name, value, comment=comment, before=before,
-                  after=after)
+    header.set(name, value, comment=comment, before=before,
+               after=after)
     return header
 
 def sxpar(header, name, count=None, comment=None,
