@@ -1,4 +1,6 @@
 from astropy.io import fits as pyfits
+from sculpt.idealpy.fits import sxpar, sxdelpar, sxaddpar, getaxes, sxaddhist
+from sculpt.utils import SculptArgumentError
 import numpy
 
 def baseline(self, hdu, chan, windows, order = 0, subtract = True, returnrms = True, kms = True):
@@ -26,6 +28,20 @@ def baseline(self, hdu, chan, windows, order = 0, subtract = True, returnrms = T
 
     x = numpy.arange(lenv)
     c_loop = 0
+
+# this commented section is the makermsimage way of selecting them
+# if someone wants to make a change regarding one being better, do it
+
+#    velax = getaxes(header, 1)
+#    indices = numpy.zeros(velax.shape, dtype=bool)
+#    for v1, v2 in window:
+#        if chan:
+#            indices[v1:v2] = True
+#        else:
+#            ind = numpy.logical_and(velax>= v1, velax<= v2)
+#            indices = numpy.logical_or(indices, ind)
+#    indices = numpy.logical_not(indices) # for indices to include in std calc
+
     for win in windows:  
         if (len(win) != 2):
             print "Each element in the window list must be a 2-tuple"
@@ -42,7 +58,6 @@ def baseline(self, hdu, chan, windows, order = 0, subtract = True, returnrms = T
         for iy in range(leny):
             spectra = data[:,ix,iy]
             spec_windows = spectra[final_ind]
-
 
             p = numpy.polyfit(x_windows,spec_windows,order)
             spec_windows -= numpy.polyval(p,len(x_windows))
