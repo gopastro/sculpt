@@ -20,7 +20,7 @@ def sxaddhist(header, history, before=None, after=None):
         integer (index). If key in 'after' is not  found keyError is raised.
     @return: Updated pyfits header
     """
-    if type(header) not in (pyfits.Header, astropy.io.fits.header.Header):
+    if not isinstance(header, astropy.io.fits.header.Header):
         raise Exception, "Input header is not a pyfits header type"
 
     if type(history) in (types.TupleType, types.ListType):
@@ -42,7 +42,7 @@ def sxdelpar(header, name):
     @return: None. Prints error message if it does not
         find the name in header
         """
-    if type(header) not in(pyfits.Header, astropy.io.fits.header.Header):
+    if not isinstance(header, astropy.io.fits.header.Header):
         raise Exception, "Input header is not a pyfits header type"
     #if header.has_key(name):
     if name in header:
@@ -84,7 +84,7 @@ def sxaddpar(header, name, value, comment=None,
         not given in input. 
     @return: Updated pyfits header
        """
-    if type(header) not in (pyfits.Header, astropy.io.fits.header.Header):
+    if not isinstance(header, astropy.io.fits.header.Header):
         raise Exception, "Input header is not a pyfits header type"
 
     if name.lower() == 'history':
@@ -144,7 +144,7 @@ def sxpar(header, name, count=None, comment=None,
         then a dictionary of values are returned.
 
      """
-    if type(header) not in (pyfits.Header, astropy.io.fits.header.Header):
+    if not isinstance(header, astropy.io.fits.header.Header):
         raise Exception, "Input header is not a pyfits header type"
     #Check for right output data types
     if count is not None:
