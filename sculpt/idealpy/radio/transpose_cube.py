@@ -129,8 +129,8 @@ def smooth(data, header, smooth_factor, origin='vxy'):
         header.add_history('Smoothing velocity axis by %d' % smooth_factor)
         return data, header        
     
-def transpose(hdu, origin='xyv',
-              smooth=None):
+def transpose_cube(hdu, origin='xyv',
+                   smooth=None):
     """
     Given a HDU this function transposes from origin (either xyv or vxy)
     and makes a new hdu into  vxy or xyv cube

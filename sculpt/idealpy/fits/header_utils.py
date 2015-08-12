@@ -31,7 +31,7 @@ def sxaddhist(header, history, before=None, after=None):
     return header
 
 
-def sxdelpar(header, name):
+def sxdelpar(header, name, debug=False):
     """
     Deletes a card from the header with a given name
 
@@ -50,7 +50,8 @@ def sxdelpar(header, name):
         #lst.pop(lst.index_of(name))
         del header[name]
     else:
-        print "Header does not contain the key %s" % name
+        if debug:
+            print "Header does not contain the key %s" % name
 
 def sxaddpar(header, name, value, comment=None,
              before=None, after=None, savecomment=True):
@@ -98,13 +99,13 @@ def sxaddpar(header, name, value, comment=None,
     if name in header:
         #header has item already
         #oldcard = header.ascardlist()[name]
-        oldcard = header.ascard[name]
+        oldcard = header.cards[name]
     if not savecomment and oldcard:
         #make sure to reset existing comment
         if not comment:
             comment = ''
-    header.update(name, value, comment=comment, before=before,
-                  after=after)
+    header.set(name, value, comment=comment, before=before,
+               after=after)
     return header
 
 def sxpar(header, name, count=None, comment=None,
