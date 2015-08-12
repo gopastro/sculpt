@@ -9,6 +9,7 @@ def baseline(hdu, chan, windows, order = 0, subtract = True, returnrms = True, k
 
     if isinstance(hdu, pyfits.hdu.image.PrimaryHDU):
         #get data and header from the hdu
+	header = hdu.header
         data = hdu.data
 
     elif isinstance(hdu, numpy.ndarray):
