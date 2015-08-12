@@ -153,13 +153,10 @@ def momentcube (hdu, v1, v2, header=None,
     else:
         units = "km/s"
     sxaddpar(hnew, "BUNIT", units, "Units")
-
-    sxdelpar(hnew, "CRVAL3")
-    sxdelpar(hnew, "CRPIX3")
-    sxdelpar(hnew, "CDELT3")
-    sxdelpar(hnew, "CTYPE3")
-    sxdelpar(hnew, "NAXIS3")
-    sxdelpar(hnew, "NAXIS4")
+    for axis in xrange(3, 5):
+        for attr in ('CRVAL', 'CRPIX', 'CDELT',
+                     'CROTA', 'CTYPE', 'NAXIS'):
+            sxdelpar(hnew, '%s%1d' % (attr, axis))
     if moment == 0:
         dt = T*abs(cdelt1)
     elif moment == 1:
