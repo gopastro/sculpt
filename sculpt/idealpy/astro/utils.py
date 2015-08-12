@@ -1,18 +1,39 @@
-import ephem
 import types
-import datetime
+from astropy.time import Time
 from sculpt.utils import SculptArgumentError
-from astrolib import coords
-import numpy
+from astropy.coordinates import Angle, SkyCoord, EarthLocation, FK5
+import astropy.units as u
 
+#FIX THIS: we can probably get rid of this function, if we use try-except clauses with appropriate exception handling from astropy
 def _check_angle(angle):
-    if isinstance(angle, ephem.Angle) or type(angle) == types.StringType or type(angle) == types.FloatType:
-        return ephem.degrees(angle)
+    if isinstance(angle, Angle) 
+    or type(angle) == types.StringType 
+    or type(angle) == types.FloatType:
+        return Angle(angle).degree
     else:
         raise IdealPyArgumentError('angle', "angle should be of type ephem.Angle or string or float")
     
-def azel2radec(az, el, latitude, longitude, date=None):
+
+def azel2radec(az, el, latitude, longitude, date=None, height=2000.0):
     """
+    ==============================================================
+    WARNING: This will probably break what you thought it would do,
+    if you've used it before. It is untested and unverified. The
+    documentation below does not reflect what will happen!!
+
+    THIS IS HERE AS LEGACY, BUT IS CONVERTED TO USE ASTROPY 
+    UTILITIES (astropy.coordinates.SkyCoords) INSTEAD
+
+    NEW HEIGHT PARAMETER: assumes 2000m elevation.
+    PUT IT AT THE END OF THE PARAMETER LIST, SINCE WE DON'T WANT
+    TO BREAK THE WAY SOMEONE HAS IT CALLED IN OLDER CODE.
+
+    WILL ACCEPT AN astropy.time.Time OBJECT, OR ACCEPTABLE STRING
+    FOR INITIALIZING ONE. NO LONGER ACCEPTS datetime.date OBJECTS
+    (THAT DIDN'T MAKE SENSE ANYWAY, IN CONTEXT, IMHO.)
+    
+    ===== BJS 12 AUG 2015 ========================================
+
     Given the azimuth and elevation of an object in radians
     (its horizontal coordinates), and the latitude and longitude
     (in degrees) of the observer's location, returns the
@@ -53,22 +74,34 @@ def azel2radec(az, el, latitude, longitude, date=None):
     @return: a tuple of RA and Dec of the source for the given observer
        location. Units of RA and Dec are ephem.Angle units.
     """
-    obs = ephem.Observer()
+
+    #FIX THIS: WE SHOULD REALLY BE USING BUILT-IN ANGLE OBJECTS FROM ASTROPY
     latitude = _check_angle(latitude)
     longitude = _check_angle(longitude)
-    obs.lat, obs.long = latitude, longitude
     az = _check_angle(az)
     el = _check_angle(el)
-    if date is not None and (isinstance(date, datetime.datetime) or isinstance(date, datetime.date)):
-        date = date
+    
+    #FIX THIS: THROW THE ABOVE IN A TRY-EXCEPT CLAUSE TO HANDLE AND/OR 
+    #          RE-RAISE EXCEPTIONS APPROPRIATELY!
+    if date is not None and (isinstance(date, datetime.datetime)): 
+        time = Time(date) 
     else:
-        date = datetime.datetime.now()
-    obs.date = date
-    return obs.radec_of(az=az, alt=el)
+        time = Time.now()
 
-        
-def jprecess(ra, dec, epoch='1950.0'):
+    c = SkyCoord(alt=el*u.deg, az=az*u.deg, 
+                 obstime=time, frame='altaz',
+                 location=EarthLocation(lat=latitude*u.deg, 
+                                        lon=longitude*u.deg, height=height*u.m))
+    return (c.fk5.ra.degree, c.fk5.dec.degree)
+
+
+def jprecess(ra, dec, epoch="B1950.0"):
     """
+    WARNING: THIS WILL PROBABLY NOT WORK ASK YOU EXPECT IT.
+             UNTESTED, UNVERIFIED. PLEASE REFER TO THE ORIGINAL DOCSTRING
+             BELOW FOR THE EXPECTED BEHAVIOR, AS WELL AS ASTROPY.COORDINATES
+             DOCUMENTATION FOR WHERE WE SHOULD GO FROM HERE.
+
     Given RA and Dec in degrees for a given epoch (default 1950.0), returns
     the precessed RA and Dec in degrees in J2000 coordinates
 
@@ -90,28 +123,16 @@ def jprecess(ra, dec, epoch='1950.0'):
     @return: a tuple of RA and Dec or list of tuples (if input is a vector)
        precessed to FK5 system of J2000. Angles are in degrees.
     """
-    if epoch in ('1950.0', '1950.', '1950', 'B1950'):
-        epoch = 1950.0
-    if type(ra) in (types.ListType, types.TupleType, numpy.ndarray):
-        vect = True
-        if type(dec) not in (types.ListType, types.TupleType, numpy.ndarray) or len(ra) != len(dec):
-            raise SculptArgumentError('dec', "dec should be of same type as RA, and have same length")            
-    else:
-        vect = False
-    if vect:
-        ret = []
-        for i, r in enumerate(ra):
-            pos = coords.Position((r, dec[i]), equinox=epoch)
-            ret.append(pos.j2000())
-    else:
-        pos = coords.Position((ra,dec), equinox=epoch)
-        ret = pos.j2000()
-    return ret
+    c = SkyCoord(ra=ra, dec=dec, unit='deg', frame="fk5", equinox=epoch)
+    return (c.fk5.ra.degree, c.fk5.dec.degree)
 
-
-    
-def bprecess(ra, dec, epoch='2000.0'):
+def bprecess(ra, dec, epoch="J2000.0"):
     """
+    WARNING: THIS WILL PROBABLY NOT WORK ASK YOU EXPECT IT.
+             UNTESTED, UNVERIFIED. PLEASE REFER TO THE ORIGINAL DOCSTRING
+             BELOW FOR THE EXPECTED BEHAVIOR, AS WELL AS ASTROPY.COORDINATES
+             DOCUMENTATION FOR WHERE WE SHOULD GO FROM HERE.
+
     Given RA and Dec in degrees for a given epoch (default 2000.0), returns
     the precessed RA and Dec in degrees in B1950 coordinates (FK4)
 
@@ -133,23 +154,7 @@ def bprecess(ra, dec, epoch='2000.0'):
     @return: a tuple of RA and Dec or list of tuples (if input is a vector)
        precessed to FK4 system of B1950. Angles are in degrees.
     """
-    if epoch in ('2000.0', '2000.', '2000', 'J2000'):
-        epoch = 2000.0
-    if type(ra) in (types.ListType, types.TupleType, numpy.ndarray):
-        vect = True
-        if type(dec) not in (types.ListType, types.TupleType, numpy.ndarray) or len(ra) != len(dec):
-            raise SculptArgumentError('dec', "dec should be of same type as RA, and have same length")            
-    else:
-        vect = False
-    if vect:
-        ret = []
-        for i, r in enumerate(ra):
-            pos = coords.Position((r, dec[i]), equinox=epoch)
-            ret.append(pos.b1950())
-    else:
-        pos = coords.Position((ra,dec), equinox=epoch)
-        ret = pos.b1950()
-    return ret
+    c = SkyCoord(ra=ra, dec=dec, unit='deg', frame="fk5", equinox=epoch)
+    c1950 = c.transform_to(FK5(equinox="B1950.0"))
+    return (c1950.ra.degree, c1950.dec.degree)
 
-
-    
