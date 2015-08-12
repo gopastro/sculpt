@@ -55,7 +55,7 @@ def smooth_image(hdu, smooth=2, header=None, mode='same'):
     shape = dt.shape
     nyy, nxx = shape
     #cards = hdr.ascardlist()
-    cards = hdr.ascard
+    cards = hdr.cards
     card = cards['NAXIS1']
     card.value = shape[1]
     card = cards['CDELT1']
