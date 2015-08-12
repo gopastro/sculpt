@@ -7,13 +7,12 @@ def baseline(hdu, chan, windows, order = 0, subtract = True, returnrms = True, k
     #this function needs to be passed a FITS HDU
     #with data in the (V,X,Y) format
 
-    if isinstance(hdu, astropy.io.fits.hdu.image.PrimaryHDU):
+    if isinstance(hdu, pyfits.hdu.image.PrimaryHDU):
         #get data and header from the hdu
         data = hdu.data
-        header = hdu.header
 
     elif isinstance(hdu, numpy.ndarray):
-        if header is None or not isinstance(header, astropy.io.fits.header.Header):
+        if header is None or not isinstance(header, pyfits.header.Header):
             raise SculptArgumentError('header', "Since you passed in data that is a numpy array, set header to a pyfits header type")
         data = hdu
 
