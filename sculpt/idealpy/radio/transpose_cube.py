@@ -19,7 +19,13 @@ def transpose_data(data, origin='vxy'):
         #now it is vxy
         data1 = numpy.swapaxes(data1, 1, 2)
         #now it is vyx
-    else:
+    elif origin == 'vyx':
+        # if data is vyx, data shape is (because of numpy):
+        # data.shape = xyv
+        # need to cast into vyx
+        data1 = numpy.swapaxes(data, 0, 2)
+        # now it is vyx - so we are good!
+    elif origin == 'xyv':
         #input is xyv
         #data.shape = vyx
         #need to cast into yxv
@@ -27,6 +33,12 @@ def transpose_data(data, origin='vxy'):
         #now it is xyv
         data1 = numpy.swapaxes(data1, 0, 1)
         #now it is yxv
+    elif origin == 'yxv':
+        # input is yxv
+        # data.shape = vxy
+        # need to cast into yxv
+        data1 = numpy.swapaxes(data, 0, 2)
+        # now it is yxv - so we are good!
     return data1
 
 def copycard(c1, c2):
@@ -39,12 +51,12 @@ def transpose_header(header, origin='vxy'):
     axis2->axis1, axis3->axis2."""
     cards = header.cards
     keepattr = {}
-    for attr in ('NAXIS', 'CTYPE', 'CRVAL', 'CDELT', 'CRPIX'):
+    for attr in ('NAXIS', 'CTYPE', 'CRVAL', 'CDELT', 'CRPIX', 'CROTA'):
         keepattr[attr] = {}
         for i in range(1, 4):
             keepattr[attr][i] = copy.copy(cards['%s%d' % (attr,i)])
     if origin == 'vxy':
-        for attr in ('NAXIS', 'CTYPE', 'CRVAL', 'CDELT', 'CRPIX'):
+        for attr in ('NAXIS', 'CTYPE', 'CRVAL', 'CDELT', 'CRPIX', 'CROTA'):
             #1->3
             copycard(cards['%s3' % attr], keepattr[attr][1])
             #2->1
@@ -53,14 +65,30 @@ def transpose_header(header, origin='vxy'):
             copycard(cards['%s2' % attr], keepattr[attr][3])
         dest = 'xyv'
         header.add_history('Tranposing from %s format to %s format' % (origin, dest))
-    else:
-        for attr in ('NAXIS', 'CTYPE', 'CRVAL', 'CDELT', 'CRPIX'):
+    elif origin == 'vyx':
+        for attr in ('NAXIS', 'CTYPE', 'CRVAL', 'CDELT', 'CRPIX', 'CROTA'):
+            #1->3
+            copycard(cards['%s3' % attr], keepattr[attr][1])
+            #3->1
+            copycard(cards['%s1' % attr], keepattr[attr][3])
+            dest = 'xyv'
+            header.add_history('Tranposing from %s format to %s format' % (origin, dest))
+    elif origin == 'xyv':
+        for attr in ('NAXIS', 'CTYPE', 'CRVAL', 'CDELT', 'CRPIX', 'CROTA'):
             #1->2
             copycard(cards['%s2' % attr], keepattr[attr][1])
             #2->3
             copycard(cards['%s3' % attr], keepattr[attr][2])
             #3->1
             copycard(cards['%s1' % attr], keepattr[attr][3])
+        dest = 'vxy'
+        header.add_history('Tranposing from %s format to %s format' % (origin, dest))
+    elif origin == 'yxv':
+        for attr in ('NAXIS', 'CTYPE', 'CRVAL', 'CDELT', 'CRPIX', 'CROTA'):
+            #3->1
+            copycard(cards['%s1' % attr], keepattr[attr][3])
+            #1->3
+            copycard(cards['%s3' % attr], keepattr[attr][1])
         dest = 'vxy'
         header.add_history('Tranposing from %s format to %s format' % (origin, dest))
     return header
@@ -104,7 +132,7 @@ def smooth_spec(f, y, window_len=5, window='hanning'):
     return data
 
 def smooth(data, header, smooth_factor, origin='vxy'):
-    if origin == 'vxy':
+    if origin[0] == 'v':
         shape = copy.copy(data.shape)
         vdim = int(round(shape[0]/float(smooth_factor)))
         new_shape = (vdim, shape[1], shape[2])
@@ -132,19 +160,21 @@ def smooth(data, header, smooth_factor, origin='vxy'):
 def transpose_cube(hdu, origin='xyv',
                    smooth=None):
     """
-    Given a HDU this function transposes from origin (either xyv or vxy)
+    Given a HDU this function transposes from origin (xyv, yxv, vxy or vyx)
     and makes a new hdu into  vxy or xyv cube
     If smooth is an integer the velocity axis is also smoothed 
     by the integral value
     """
     header = hdu.header
     data = hdu.data
-    if origin == 'xyv':
+    if origin not in ('xyv', 'yxv', 'vxy', 'vyx'):
+        raise SculptArgumentError('transpose_cube', 'Origin should be one of xyv, yxv, vxy or vxy')
+    if origin[2] == 'v':
         if header.get('CTYPE3') not in ('VELO-LSR', 'VELOCITY'):
-            raise SculptArgumentError('header', 'Input Cube is not of xyv format')
+            raise SculptArgumentError('header', 'Input Cube does not have Velocity in 3rd axis')
     else:
         if header.get('CTYPE1') not in ('VELO-LSR', 'VELOCITY'):
-            raise SculptArgumentError('header', 'Input Cube is not of vxy format')
+            raise SculptArgumentError('header', 'Input Cube does not have Velocity in 1st axis')
     data1 = transpose_data(data, origin=origin)
     header1 = transpose_header(header, origin=origin)
     if smooth is not None:
