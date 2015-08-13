@@ -6,9 +6,9 @@ import astropy.units as u
 
 #FIX THIS: we can probably get rid of this function, if we use try-except clauses with appropriate exception handling from astropy
 def _check_angle(angle):
-    if isinstance(angle, Angle) 
-    or type(angle) == types.StringType 
-    or type(angle) == types.FloatType:
+    if isinstance(angle, Angle) \
+            or type(angle) == types.StringType \
+            or type(angle) == types.FloatType:
         return Angle(angle).degree
     else:
         raise IdealPyArgumentError('angle', "angle should be of type ephem.Angle or string or float")
