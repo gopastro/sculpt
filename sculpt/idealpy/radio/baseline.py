@@ -3,17 +3,17 @@ from sculpt.idealpy.fits import sxpar, sxdelpar, sxaddpar, getaxes, sxaddhist
 from sculpt.utils import SculptArgumentError
 import numpy
 
-def baseline(self, hdu, chan, windows, order = 0, subtract = True, returnrms = True, kms = True):
+def baseline(hdu, chan, windows, order = 0, subtract = True, returnrms = True, kms = True):
     #this function needs to be passed a FITS HDU
     #with data in the (V,X,Y) format
 
-    if isinstance(hdu, astropy.io.fits.hdu.image.PrimaryHDU):
+    if isinstance(hdu, pyfits.hdu.image.PrimaryHDU):
         #get data and header from the hdu
+	header = hdu.header
         data = hdu.data
-        header = hdu.header
 
     elif isinstance(hdu, numpy.ndarray):
-        if header is None or not isinstance(header, astropy.io.fits.header.Header):
+        if header is None or not isinstance(header, pyfits.header.Header):
             raise SculptArgumentError('header', "Since you passed in data that is a numpy array, set header to a pyfits header type")
         data = hdu
 
@@ -115,7 +115,7 @@ def baseline(self, hdu, chan, windows, order = 0, subtract = True, returnrms = T
         else:
             vorc = 'VELOCITY'
 
-        sxaddhist(hnew, "WINDOW : %s; Window %s LIMITS" % (repr(window), vorc))
+        sxaddhist(hnew, "WINDOW : %s; Window %s LIMITS" % (repr(windows), vorc))
         #sxaddpar(hnew, "BUNIT", units, "Units")
         sxdelpar(hnew, "CRVAL3")
         sxdelpar(hnew, "CRPIX3")

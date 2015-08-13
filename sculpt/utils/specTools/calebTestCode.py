@@ -8,7 +8,13 @@ from astropy.modeling import models, fitting
 def getSpecDataCube(filename,):
     if getpass.getuser() == 'chw3k5':
         dirname = '/Users/chw3k5/Documents/Grad_School/supercamG30data/'
-        filename = dirname+filename
+
+    elif getpass.getuser() == 'theodore':
+	dirname = '/home/theodore/astroenv/supercamdata/supercamG30data/'
+    else:
+        dirname = ''
+    filename = dirname+filename
+
     HDU = pyfits.open(filename)
     fitsData = HDU[0]
     specDataCube = fitsData.data[0,:,:,:] # The 0 is the polarization axis
@@ -54,8 +60,8 @@ if __name__ == "__main__":
     testSpec = specDataCube[:,342,122]
     len_spec = len(testSpec)
     x = range(len_spec)
-    g1 = models.Gaussian1D(1, 270, 4)
-    g2 = models.Gaussian1D(2.5, 300, 3)
+    g1 = models.Gaussian1D(1, 100, 4)
+    g2 = models.Gaussian1D(.5, 300, 3)
     gg_init = g1+g2
     fitter = fitting.SLSQPLSQFitter()
     gg_fit = fitter(gg_init,x,testSpec)
