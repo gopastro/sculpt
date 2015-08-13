@@ -2,4 +2,3 @@
 *.pyc
 .idea
 calebNotes.txt
-convert_4dim_3dim_fits.py
