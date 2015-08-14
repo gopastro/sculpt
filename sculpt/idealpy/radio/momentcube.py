@@ -101,15 +101,15 @@ def momentcube (hdu, v1, v2, header=None,
     ny = sxpar(header,"NAXIS3")
     blank = sxpar(header,"BLANK")
 
-    cube = data.copy()
+    #cube = data.copy()
     if not dontblank and blank is not None:
-        ind = numpy.where(cube == blank)
-        cube[ind] = 0.0
+        ind = numpy.where(data == blank)
+        data[ind] = 0.0
 
+    vind = numpy.zeros(nv, dtype=bool)
     if not chan:
         #get velocity axis
         velax = getaxes(header, 1)
-        vind = numpy.zeros(velax.shape, dtype=bool)
         if v2 < v1:
             v1, v2 = v2, v1
 
@@ -120,12 +120,12 @@ def momentcube (hdu, v1, v2, header=None,
 
     N = len(numpy.where(vind)[0])
     print "N: %d" % N
-    T = cube[:,:,vind].sum(axis=2) #T is integ intensity image now
+    T = data[:,:,vind].sum(axis=2) #T is integ intensity image now
     if moment >= 1:
-        C = (cube[:,:,vind]*velax[vind]).sum(axis=2) 
+        C = (data[:,:,vind]*velax[vind]).sum(axis=2) 
         C = C/T  #centroid velocity definition
         if moment == 2:
-            W = (cube[:,:,vind]*velax[vind]**2.).sum(axis=2)
+            W = (data[:,:,vind]*velax[vind]**2.).sum(axis=2)
             W = W/T - C**2.
 
     hnew = header.copy()
@@ -173,5 +173,4 @@ def momentcube (hdu, v1, v2, header=None,
         sxaddhist(hrms, "WINDOW : %s; Window %s LIMITS" % (repr(window), vorc))
         rms = pyfits.PrimaryHDU(rms_data, header=hrms)
         return hdu, rms
-    del cube
     return hdu
