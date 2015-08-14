@@ -4,8 +4,8 @@ from sculpt.idealpy.fits import xyad
 from sculpt.idealpy.radio import momentcube, cube_extract
 from sculpt.utils import SculptArgumentError
 import matplotlib.pyplot as mpl
+from matplotlib.mlab import inside_poly
 import numpy
-
 
 class Sculpture(SculptureFITSFigure):
     """
