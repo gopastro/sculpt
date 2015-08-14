@@ -5,6 +5,7 @@ from sculpt.utils import SculptArgumentError
 import matplotlib.pyplot as mpl
 import numpy
 
+
 class Sculpture(SculptureFITSFigure):
     """
     The Sculpture Class is a top level class 
@@ -304,13 +305,13 @@ class Sculpture(SculptureFITSFigure):
 
             if self.blue:
                 #blue-weighted
-                yind, xind = numpy.where(blue.data > self.sigma_crit*brms.data/math.sqrt(2))
+                yind, xind = numpy.where(blue.data > self.sigma_crit*brms.data/numpy.sqrt(2))
                 avgspec = hdunew.data[yind, xind, :].mean(axis=0)
                 ax.plot(xind+x[0], yind+y[0], 'bx')
                 avgax.plot(vel, avgspec, linestyle='steps-mid', label='blue wt %s' % self._get_hdu_title(i))
             else:
                 #red-weighted
-                yind, xind = numpy.where(red.data > self.sigma_crit*rrms.data/math.sqrt(2))
+                yind, xind = numpy.where(red.data > self.sigma_crit*rrms.data/numpy.sqrt(2))
                 avgspec = hdunew.data[yind, xind, :].mean(axis=0)
                 ax.plot(xind+x[0], yind+y[0], 'rx')
                 avgax.plot(vel, avgspec, linestyle='steps-mide', label='red wt %s' % self._get_hdu_title(i))
