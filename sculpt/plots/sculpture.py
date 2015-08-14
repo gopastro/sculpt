@@ -68,6 +68,8 @@ class Sculpture(SculptureFITSFigure):
                   'Keep pressing G to define polygon vertices and press c to close'),
             'c': ('Close blue or red-shifted polygon',
                   'First press G or g to start blue or red-shifted polygons')
+            'h': ('Print out help prompt for keystrokes',
+                  'Print out help prompt for keystrokes')
             }
         self.start_events()
         
@@ -215,6 +217,16 @@ class Sculpture(SculptureFITSFigure):
                 #self.show_polygons(self.pvert_red, edgecolor='r')
                 self.red_polygon_active = False
                 self.polygon_average(self.pvert_red, bluered='red')
+        if event.key == "h":
+            #help text
+            self.print_keystroke_help()
+
+    def _get_hdu_title(self, num):
+        if not self.extra_hdu_titles:
+            title = 'HDU %d' % num
+        else:
+            title = self.extra_hdu_titles[num]
+        return title
 
     def draw_spectrum(self, xdata, ydata):
         if not self.extra_hdus:
@@ -225,17 +237,32 @@ class Sculpture(SculptureFITSFigure):
         for i, hdu in enumerate(self.extra_hdus):
             spec = hdu.data[ydata, xdata, :]
             vel = getaxes(hdu.header, 1)
-            if not self.extra_hdu_titles:
-                title = 'HDU 0'
-            else:
-                title = self.extra_hdu_titles[i]
-            print spec
-            print vel
+            title = self._get_hdu_title(i)
             specax.plot(vel, spec, linestyle='steps-mid', label=title)
         specax.set_title('Spectrum at %.1f, %.1f' % (xdata, ydata))
         specax.legend(loc='best')
         self.specfigure.canvas.draw()    
 
+    def draw_box_and_average(self):
+        x = [f[0] for f in self.box]
+        y = [f[1] for f in self.box]
+        x.sort()
+        y.sort()
+        ax = self._figure.get_axes()[0]
+        ax.hlines(y, x[0], x[1], colors='w')
+        ax.vlines(x, y[0], y[1], colors='w')
+        self.refresh()
+        if self.avgfigure is None:
+            self.avgfigure = mpl.figure()
+        avgax = self.avgfigure.add_subplot(111)            
+        for i, hdu in enumerate(self.extra_hdus):
+            avgspec = hdu.data[y[0]:y[1], x[0]:x[1], :].mean(axis=0).mean(axis=0)
+            vel = getaxes(hdu.header, 1)
+            title = self._get_hdu_title(i)
+            avgax.plot(vel, avgspec, linestyle='steps-mid', label=title)
+        avgax.set_title('Average of box (%.1f, %.1f) to (%.1f, %.1f)' % (x[0], y[0], x[1], y[1]))
+        avgax.legend(loc='best')
+        self.avgfigure.canvas.draw()
 
     def start_events(self):
         self.cid = self._figure.canvas.mpl_connect('key_press_event', self.on_keypress)
