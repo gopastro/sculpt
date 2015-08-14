@@ -106,11 +106,12 @@ def momentcube (hdu, v1, v2, header=None,
         ind = numpy.where(cube == blank)
         cube[ind] = 0.0
 
-    #get velocity axis
-    velax = getaxes(header, 1)
-    vind = numpy.zeros(velax.shape, dtype=bool)
-    if v2 < v1:
-        v1, v2 = v2, v1
+    if not chan:
+        #get velocity axis
+        velax = getaxes(header, 1)
+        vind = numpy.zeros(velax.shape, dtype=bool)
+        if v2 < v1:
+            v1, v2 = v2, v1
 
     if chan:
         vind[v1:v2+1] = True
@@ -118,6 +119,7 @@ def momentcube (hdu, v1, v2, header=None,
         vind = numpy.logical_and(velax>= v1, velax<=v2)
 
     N = len(numpy.where(vind)[0])
+    print "N: %d" % N
     T = cube[:,:,vind].sum(axis=2) #T is integ intensity image now
     if moment >= 1:
         C = (cube[:,:,vind]*velax[vind]).sum(axis=2) 
@@ -171,4 +173,5 @@ def momentcube (hdu, v1, v2, header=None,
         sxaddhist(hrms, "WINDOW : %s; Window %s LIMITS" % (repr(window), vorc))
         rms = pyfits.PrimaryHDU(rms_data, header=hrms)
         return hdu, rms
+    del cube
     return hdu
