@@ -152,6 +152,9 @@ if __name__ == "__main__":
     maximaConvRadius = 20
 
     showFitterPlots = True
+
+    # start putting this code below into definitions
+
     # initialize the model
     maximaList = getSpecLocalMaxima(testSpec,doConv=True,sigma=maximaConvSigma,convRadius=maximaConvRadius,doPlot=showMaximaPlot)
     len_spec = len(testSpec)
