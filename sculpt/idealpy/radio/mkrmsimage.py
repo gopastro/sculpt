@@ -4,6 +4,7 @@ from sculpt.utils import SculptArgumentError
 import numpy
 from astropy.io import fits as pyfits
 import types
+import astropy.io
 #import copy
 
 def mkrmsimage (hdu, window, header=None, 
