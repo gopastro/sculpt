@@ -320,6 +320,37 @@ class Sculpture(SculptureFITSFigure):
         avgfigure.canvas.draw()
         self.refresh()
 
+    def _get_points(self, hdu):
+        self.ny, self.nx, nv = hdu.data.shape
+        x = range(self.nx)
+        y = range(self.ny)
+        X, Y = numpy.meshgrid(x, y)
+        x, y = X.flatten(), Y.flatten()
+        xx, yy = xyad(hdu.header, x, y)
+        return numpy.vstack((xx, yy)).T
+
+    def polygon_average(self, pvert, bluered='blue'):
+        """Averages within a polygon"""
+        self.show_lines([numpy.array(pvert[0]).T,], edgecolor=bluered, linewidth=2)
+        avgfigure = mpl.figure()
+        avgax = avgfigure.add_subplot(111)
+        for i, hdu in enumerate(self.extra_hdus):
+            points = self._get_points(hdu)
+            vel = getaxes(hdu.header, 1)
+            #mask = points_inside_poly(points, pvert[0])
+            mask = inside_poly(points, pvert[0])
+            navg = len(numpy.where(mask)[0])
+            hdunew = hdu.data.copy()
+            ny, nx, nv = hdunew.shape
+            hdunew = hdunew.reshape((ny*nx), nv)
+            poly_avg = hdunew[mask, :].mean(axis=0)
+            avgax.plot(vel, poly_avg, linestyle='steps-mid',
+                       label='%s %s polygon' % (self._get_hdu_title(i), bluered))
+        avgax.set_title("Average made from %s qualifying points" % navg)
+        avgax.legend(loc='best')
+        avgfigure.canvas.draw()
+        self.refresh()
+
     def start_events(self):
         self.cid = self._figure.canvas.mpl_connect('key_press_event', self.on_keypress)
         
