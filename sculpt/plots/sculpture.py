@@ -67,7 +67,7 @@ class Sculpture(SculptureFITSFigure):
             'g': ('Start definition of red-shifted polygon',
                   'Keep pressing G to define polygon vertices and press c to close'),
             'c': ('Close blue or red-shifted polygon',
-                  'First press G or g to start blue or red-shifted polygons')
+                  'First press G or g to start blue or red-shifted polygons'),
             'h': ('Print out help prompt for keystrokes',
                   'Print out help prompt for keystrokes')
             }
