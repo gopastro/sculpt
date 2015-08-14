@@ -28,3 +28,4 @@ def convert_gildas_and_transpose(filename,
     hdulist = pyfits.HDUList([hduout])
     print "Writing converted FITS file to %s" % output_filename
     hdulist.writeto(output_filename)
+    return

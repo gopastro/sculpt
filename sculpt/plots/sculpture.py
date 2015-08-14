@@ -229,6 +229,8 @@ class Sculpture(SculptureFITSFigure):
                 title = 'HDU 0'
             else:
                 title = self.extra_hdu_titles[i]
+            plot spec
+            plot vel
             specax.plot(vel, spec, linestyle='steps-middle', label=title)
         specax.set_title('Spectrum at %.1f, %.1f' % (xdata, ydata))
         specax.legend(loc='best')
