@@ -1,5 +1,6 @@
 from .sculpture_fitsfigure import SculptureFITSFigure
 from sculpt.idealpy.radio import getaxes
+from sculpt.idealpy.fits import xyad
 from sculpt.idealpy.radio import momentcube, cube_extract
 from sculpt.utils import SculptArgumentError
 import matplotlib.pyplot as mpl
