@@ -1,5 +1,7 @@
 from .sculpture_fitsfigure import SculptureFITSFigure
 from sculpt.idealpy.radio import getaxes
+from sculpt.idealpy.radio import momentcube, cube_extract
+from sculpt.utils import SculptArgumentError
 import matplotlib.pyplot as mpl
 import numpy
 
@@ -16,9 +18,14 @@ class Sculpture(SculptureFITSFigure):
                  gauss_width=2, extra_hdus=[],
                  extra_hdu_titles=[],
                  blue_windows=[], red_windows=[],
+                 rms_window=[],
                  sigma_crit=3.0, source_distance=140.0,
                  avgfigure=None, pvangle=None,
                  **kwargs):
+        """
+        For now blue_windows and red_windows are lists of
+        two values for blue and redshifted windows
+        """
         SculptureFITSFigure.__init__(self, data, hdu, figure=figure,
                                      subplot=subplot, downsample=downsample,
                                      north=north, convention=convention,
@@ -28,6 +35,7 @@ class Sculpture(SculptureFITSFigure):
         self.extra_hdu_titles = extra_hdu_titles
         self.blue_windows = blue_windows
         self.red_windows = red_windows
+        self.rms_window = rms_window
         self.sigma_crit = sigma_crit
         self.avgfigure = avgfigure
         self.pvangle = pvangle
@@ -263,6 +271,53 @@ class Sculpture(SculptureFITSFigure):
         avgax.set_title('Average of box (%.1f, %.1f) to (%.1f, %.1f)' % (x[0], y[0], x[1], y[1]))
         avgax.legend(loc='best')
         self.avgfigure.canvas.draw()
+
+    def draw_box_and_sigma_average(self):
+        x = [f[0] for f in self.box]
+        y = [f[1] for f in self.box]
+        x.sort()
+        y.sort()
+        ax = self._figure.get_axes()[0]
+        ax.hlines(y, x[0], x[1], colors='w')
+        ax.vlines(x, y[0], y[1], colors='w')
+        self.refresh()
+        avgfigure = mpl.figure()
+        avgax = avgfigure.add_subplot(111)
+        if self.blue_windows:
+            b1, b2 = self.blue_windows
+        else:
+            raise SculptArgumentError('draw_box_and_sigma_average', 'You have to set blue windows to be able to do sigma averaged windows')
+        if self.red_windows:
+            r1, r2 = self.red_windows
+        else:
+            raise SculptArgumentError('draw_box_and_sigma_average', 'You have to set red windows to be able to do sigma averaged windows')
+        
+        for i, hdu in enumerate(self.extra_hdus):
+            hdunew = cube_extract(hdu, [-1, -1, x[0], x[1], y[0], y[1]])
+            vel = getaxes(hdu.header, 1)
+            if self.blue:
+                blue, brms = momentcube(hdunew, b1, b2, 
+                                        returnrms=True, window=self.rms_window)
+            else:
+                red, rrms = momentcube(hdunew, r1, r2, 
+                                       returnrms=True, window=self.rms_window)
+
+            if self.blue:
+                #blue-weighted
+                yind, xind = numpy.where(blue.data > self.sigma_crit*brms.data/math.sqrt(2))
+                avgspec = hdunew.data[yind, xind, :].mean(axis=0)
+                ax.plot(xind+x[0], yind+y[0], 'bx')
+                avgax.plot(vel, avgspec, linestyle='steps-mid', label='blue wt %s' % self._get_hdu_title(i))
+            else:
+                #red-weighted
+                yind, xind = numpy.where(red.data > self.sigma_crit*rrms.data/math.sqrt(2))
+                avgspec = hdunew.data[yind, xind, :].mean(axis=0)
+                ax.plot(xind+x[0], yind+y[0], 'rx')
+                avgax.plot(vel, avgspec, linestyle='steps-mide', label='red wt %s' % self._get_hdu_title(i))
+        avgax.set_title("Average made from %s qualifying points" % len(xind))
+        avgax.legend(loc='best')
+        avgfigure.canvas.draw()
+        self.refresh()
 
     def start_events(self):
         self.cid = self._figure.canvas.mpl_connect('key_press_event', self.on_keypress)
