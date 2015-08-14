@@ -1,4 +1,5 @@
 from .sculpture_fitsfigure import SculptureFITSFigure
+from sculpt.idealpy.radio import getaxes
 import matplotlib.pyplot as mpl
 import numpy
 

@@ -1,0 +1,2 @@
+from .sculpture import Sculpture
+
