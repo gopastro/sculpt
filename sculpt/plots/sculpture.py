@@ -314,7 +314,7 @@ class Sculpture(SculptureFITSFigure):
                 yind, xind = numpy.where(red.data > self.sigma_crit*rrms.data/numpy.sqrt(2))
                 avgspec = hdunew.data[yind, xind, :].mean(axis=0)
                 ax.plot(xind+x[0], yind+y[0], 'rx')
-                avgax.plot(vel, avgspec, linestyle='steps-mide', label='red wt %s' % self._get_hdu_title(i))
+                avgax.plot(vel, avgspec, linestyle='steps-mid', label='red wt %s' % self._get_hdu_title(i))
         avgax.set_title("Average made from %s qualifying points" % len(xind))
         avgax.legend(loc='best')
         avgfigure.canvas.draw()
