@@ -146,7 +146,7 @@ class Sculpture(SculptureFITSFigure):
         if event.key == 'P':
             #print ra, dec for location
             print event.xdata, event.ydata
-            r = self._wcs.wcs_pix2sky([[event.xdata,event.ydata]], 1)
+            r = self._wcs.wcs_pix2world([[event.xdata,event.ydata]], 1)
             ra = r[0][0]
             dec = r[0][1]
             print "RA = %s, Dec= %s" % (ra, dec)
@@ -179,7 +179,7 @@ class Sculpture(SculptureFITSFigure):
                 self.blue_polygon_active = True
             print event.xdata, event.ydata
             print self.keystrokes[event.key][1]
-            r = self._wcs.wcs_pix2sky([[event.xdata,event.ydata]], 1)
+            r = self._wcs.wcs_pix2world([[event.xdata,event.ydata]], 1)
             ra = r[0][0]
             dec = r[0][1]
             self.polygon_vert_blue.append([ra, dec])
@@ -195,7 +195,7 @@ class Sculpture(SculptureFITSFigure):
                 self.red_polygon_active = True                
             print event.xdata, event.ydata
             print self.keystrokes[event.key][1]
-            r = self._wcs.wcs_pix2sky([[event.xdata,event.ydata]], 1)
+            r = self._wcs.wcs_pix2world([[event.xdata,event.ydata]], 1)
             ra = r[0][0]
             dec = r[0][1]
             self.polygon_vert_red.append([ra, dec])
