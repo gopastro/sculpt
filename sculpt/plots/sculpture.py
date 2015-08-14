@@ -179,9 +179,9 @@ class Sculpture(SculptureFITSFigure):
                 self.blue_polygon_active = True
             print event.xdata, event.ydata
             print self.keystrokes[event.key][1]
-            r = self._wcs.wcs_pix2world([[event.xdata,event.ydata]], 1)
-            ra = r[0][0]
-            dec = r[0][1]
+            r = self._wcs.wcs_pix2world(event.xdata, event.ydata, 1)
+            ra = float(r[0])
+            dec = float(r[1])
             self.polygon_vert_blue.append([ra, dec])
             if len(self.polygon_vert_blue) > 2:
                 self.show_lines([numpy.array(self.polygon_vert_blue[-2:]).T, ],
@@ -195,9 +195,9 @@ class Sculpture(SculptureFITSFigure):
                 self.red_polygon_active = True                
             print event.xdata, event.ydata
             print self.keystrokes[event.key][1]
-            r = self._wcs.wcs_pix2world([[event.xdata,event.ydata]], 1)
-            ra = r[0][0]
-            dec = r[0][1]
+            r = self._wcs.wcs_pix2world(event.xdata, event.ydata, 1)
+            ra = float(r[0])
+            dec = float(r[1])
             self.polygon_vert_red.append([ra, dec])
             if len(self.polygon_vert_red) > 2:
                 self.show_lines([numpy.array(self.polygon_vert_red[-2:]).T, ],
