@@ -6,10 +6,10 @@ import numpy
 def baseline(hdu, chan, windows, order = 0, subtract = True, returnrms = True, kms = True):
     #this function needs to be passed a FITS HDU
     #with data in the (V,X,Y) format
-
+    header = None
     if isinstance(hdu, pyfits.hdu.image.PrimaryHDU):
-        #get data and header from the hdu
-	header = hdu.header
+        # get data and header from the hdu
+        header = hdu.header
         data = hdu.data
 
     elif isinstance(hdu, numpy.ndarray):

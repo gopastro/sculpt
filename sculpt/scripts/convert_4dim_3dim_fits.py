@@ -5,6 +5,7 @@ FITS cubes
 """
 from astropy.io import fits as pyfits
 from sculpt.idealpy.radio import transpose_cube
+import os
 
 def convert_gildas_and_transpose(filename,
                                  output_filename=None):
@@ -27,5 +28,7 @@ def convert_gildas_and_transpose(filename,
     hduout = transpose_cube(hdu, origin='xyv')
     hdulist = pyfits.HDUList([hduout])
     print "Writing converted FITS file to %s" % output_filename
+    if os.path.exists(output_filename):
+        os.remove(output_filename)
     hdulist.writeto(output_filename)
     return

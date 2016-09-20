@@ -119,7 +119,7 @@ def momentcube (hdu, v1, v2, header=None,
         vind = numpy.logical_and(velax>= v1, velax<=v2)
 
     N = len(numpy.where(vind)[0])
-    print "N: %d" % N
+    print "The number of spectral channels used, N: %d" % N
     T = data[:,:,vind].sum(axis=2) #T is integ intensity image now
     if moment >= 1:
         C = (data[:,:,vind]*velax[vind]).sum(axis=2) 
